@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Instant Work Supply</name>
+  <name>Super Blink</name>
   <author>Lilly</author>
   <packageId>lilly.instantworksupply</packageId>
   <supportedVersions>
@@ -16,6 +16,16 @@
   <loadAfter>
     <li>brrainz.harmony</li>
   </loadAfter>
-  <description>Independently teleports reserved work materials to pawns at pickup, and teleports pawns along vanilla paths, including while carrying materials to work targets.</description>
+  <description>Super Blink makes pawns and eligible work materials move instantly while preserving RimWorld's vanilla work and reservation logic.
+
+When a pawn has reserved a haulable item for its current job, it skips the trip to the item. At pickup, the item teleports to the pawn and is collected by the vanilla carry toil. Pawns also teleport to the end of vanilla paths that are at least five cells away, including while carrying materials to a work target. The original job then places the materials as usual.
+
+Vanilla still chooses and reserves materials. Forbidden items and items reserved by another pawn are not taken, and vanilla reachability rules are not bypassed. Teleporting general pawn movement removes normal travel time and may bypass movement-related interactions. Movement systems that do not use Pawn_PathFollower are not affected.
+
+Super Blink은 림월드의 기본 작업 및 예약 방식을 유지하면서 림과 작업 재료를 순간이동시킵니다.
+
+현재 작업을 위해 림이 운반 가능한 물건을 예약하면, 해당 물건까지 걸어가는 과정을 생략합니다. 집기 단계에서 물건이 림의 위치로 순간이동하고, 바닐라 운반 로직으로 집힙니다. 림은 5칸 이상 떨어진 바닐라 이동 경로의 목적지로 순간이동하며, 재료를 든 채 작업 대상으로 이동할 때도 적용됩니다. 재료를 놓는 동작은 기존 작업 로직을 따릅니다.
+
+물건의 선택과 예약은 바닐라가 처리합니다. 금지된 물건이나 다른 림이 예약한 물건은 가져오지 않으며, 바닐라의 도달 가능성 검사도 우회하지 않습니다. 일반 이동에 순간이동을 적용하면 이동 시간이 사라지고 이동 중 상호작용이 생략될 수 있습니다. Pawn_PathFollower를 사용하지 않는 이동 방식에는 적용되지 않습니다.</description>
   <modVersion>1.0.0</modVersion>
 </ModMetaData>

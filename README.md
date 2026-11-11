@@ -1,8 +1,18 @@
-# Instant Work Supply
+# Super Blink
 
-For RimWorld 1.7. A pawn skips travel to a haulable item reserved by its current job. When vanilla starts carrying that reserved item, the item independently teleports to the pawn and vanilla carry logic picks it up. Pawns also teleport to the end of vanilla paths, so carried ingredients move instantly to work targets and vanilla job toils still place them. Other pawn movement teleports as well.
+For RimWorld 1.7. Super Blink makes pawns and eligible work materials move instantly while preserving RimWorld's vanilla work and reservation logic.
 
-Items are selected, reserved, picked up, and placed by vanilla job logic. Forbidden items and items reserved by another pawn are not taken. Jobs retain vanilla candidate-selection and reachability rules; this mod does not add a separate map-wide item search. Pawn teleportation is handled once when a completed path is followed, only for destinations at least five cells away. The active job driver is notified of arrival. Pawns are moved without despawning, so selection is preserved. Movement that does not use `Pawn_PathFollower` is not affected. Teleporting all pawn movement can bypass normal travel time and movement-related interactions.
+When a pawn has reserved a haulable item for its current job, it skips the trip to the item. At pickup, the item teleports to the pawn and is collected by the vanilla carry toil. Pawns also teleport to the end of vanilla paths that are at least five cells away, including while carrying materials to a work target. The original job then places the materials as usual.
+
+Vanilla still chooses and reserves materials. Forbidden items and items reserved by another pawn are not taken, and vanilla reachability rules are not bypassed. Teleporting general pawn movement removes normal travel time and may bypass movement-related interactions. Movement systems that do not use `Pawn_PathFollower` are not affected.
+
+## 한국어
+
+Super Blink은 림월드의 기본 작업 및 예약 방식을 유지하면서 림과 작업 재료를 순간이동시킵니다.
+
+현재 작업을 위해 림이 운반 가능한 물건을 예약하면, 해당 물건까지 걸어가는 과정을 생략합니다. 집기 단계에서 물건이 림의 위치로 순간이동하고, 바닐라 운반 로직으로 집힙니다. 림은 5칸 이상 떨어진 바닐라 이동 경로의 목적지로 순간이동하며, 재료를 든 채 작업 대상으로 이동할 때도 적용됩니다. 재료를 놓는 동작은 기존 작업 로직을 따릅니다.
+
+물건의 선택과 예약은 바닐라가 처리합니다. 금지된 물건이나 다른 림이 예약한 물건은 가져오지 않으며, 바닐라의 도달 가능성 검사도 우회하지 않습니다. 일반 이동에 순간이동을 적용하면 이동 시간이 사라지고 이동 중 상호작용이 생략될 수 있습니다. `Pawn_PathFollower`를 사용하지 않는 이동 방식에는 적용되지 않습니다.
 
 Requires Harmony.
 
