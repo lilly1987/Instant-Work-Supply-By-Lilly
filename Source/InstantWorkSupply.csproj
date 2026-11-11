@@ -19,5 +19,9 @@
       <HintPath>$(GameRoot)\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>$(GameRoot)\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 </Project>

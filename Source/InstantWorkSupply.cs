@@ -31,6 +31,23 @@ namespace Lilly.InstantWorkSupply
                 Pawn pawn = toil.actor;
                 if (pawn != null && shouldSkip(pawn))
                 {
+                    originalInitAction();
+
+                    Map map = pawn.Map;
+                    PawnPath path = pawn.pather.curPath;
+                    IntVec3 destination = path != null ? path.LastNode : IntVec3.Invalid;
+                    if (map == null || !destination.IsValid || !destination.InBounds(map))
+                        return;
+
+                    pawn.pather.StopDead();
+
+                    if (destination != pawn.Position)
+                    {
+                        Rot4 rotation = pawn.Rotation;
+                        pawn.DeSpawn();
+                        GenSpawn.Spawn(pawn, destination, map, rotation);
+                    }
+
                     pawn.jobs.curDriver.ReadyForNextToil();
                     return;
                 }
