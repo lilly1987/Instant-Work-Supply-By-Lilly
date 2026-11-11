@@ -1,9 +1,0 @@
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.csproj.AssemblyReference.cache
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.GeneratedMSBuildEditorConfig.editorconfig
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.AssemblyInfoInputs.cache
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.AssemblyInfo.cs
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.csproj.CoreCompileInputs.cache
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\1.7\Assemblies\InstantWorkSupply.dll
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\InstantWorkSupply.dll
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\refint\InstantWorkSupply.dll
-Y:\SteamLibrary\steamapps\common\RimWorld\Mods\Instant Work Supply By Lilly\Source\obj\Release\ref\InstantWorkSupply.dll

@@ -123,46 +123,37 @@ namespace Lilly.InstantWorkSupply
     }
 
     [HarmonyPatch]
-    internal static class Pawn_PathFollower_StartPath_Patch
+    internal static class Pawn_PathFollower_PatherTick_Patch
     {
         private const int MinimumTeleportDistanceSquared = 25;
 
-        private static IEnumerable<MethodBase> TargetMethods()
+        private static MethodBase TargetMethod()
         {
-            return AccessTools.GetDeclaredMethods(typeof(Pawn_PathFollower))
-                .Where(method =>
-                {
-                    if (method.Name != "StartPath" || method.ReturnType != typeof(void))
-                        return false;
-
-                    ParameterInfo[] parameters = method.GetParameters();
-                    return parameters.Length >= 2 &&
-                        (parameters[0].ParameterType == typeof(IntVec3) ||
-                         parameters[0].ParameterType == typeof(LocalTargetInfo)) &&
-                        parameters[1].ParameterType == typeof(PathEndMode);
-                });
+            return AccessTools.Method(typeof(Pawn_PathFollower), "PatherTick");
         }
 
-        private static void Postfix(Pawn_PathFollower __instance, Pawn ___pawn)
+        private static bool Prefix(Pawn_PathFollower __instance, Pawn ___pawn)
         {
             Pawn pawn = ___pawn;
             if (pawn == null || !pawn.Spawned || pawn.Map == null)
-                return;
+                return true;
 
             PawnPath path = __instance.curPath;
-            if (path == null)
-                return;
+            if (path == null || !path.Found)
+                return true;
 
             Map map = pawn.Map;
             IntVec3 destination = path.LastNode;
             if (!destination.IsValid || !destination.InBounds(map))
-                return;
+                return true;
 
             if (destination.DistanceToSquared(pawn.Position) < MinimumTeleportDistanceSquared)
-                return;
+                return true;
 
             pawn.Position = destination;
-            pawn.Notify_Teleported(true, true);
+            pawn.Notify_Teleported(false, true);
+            pawn.jobs?.curDriver?.Notify_PatherArrived();
+            return false;
         }
     }
 }
