@@ -123,32 +123,42 @@ namespace Lilly.InstantWorkSupply
     }
 
     [HarmonyPatch]
-    internal static class Pawn_PathFollower_PatherTick_Patch
+    internal static class Pawn_PathFollower_StartPath_Patch
     {
         private const int MinimumTeleportDistanceSquared = 25;
 
-        private static MethodBase TargetMethod()
+        private static IEnumerable<MethodBase> TargetMethods()
         {
-            return AccessTools.Method(typeof(Pawn_PathFollower), "PatherTick");
+            return AccessTools.GetDeclaredMethods(typeof(Pawn_PathFollower))
+                .Where(method =>
+                {
+                    if (method.Name != "StartPath" || method.ReturnType != typeof(void))
+                        return false;
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    return parameters.Length >= 2 &&
+                        parameters[0].ParameterType == typeof(IntVec3) &&
+                        parameters[1].ParameterType == typeof(PathEndMode);
+                });
         }
 
-        private static bool Prefix(Pawn_PathFollower __instance, Pawn ___pawn)
+        private static void Postfix(Pawn_PathFollower __instance, Pawn ___pawn)
         {
             Pawn pawn = ___pawn;
             if (pawn == null || !pawn.Spawned || pawn.Map == null)
-                return true;
+                return;
 
             PawnPath path = __instance.curPath;
             if (path == null)
-                return true;
+                return;
 
             Map map = pawn.Map;
             IntVec3 destination = path.LastNode;
             if (!destination.IsValid || !destination.InBounds(map))
-                return true;
+                return;
 
             if (destination.DistanceToSquared(pawn.Position) < MinimumTeleportDistanceSquared)
-                return true;
+                return;
 
             bool wasSelected = Find.Selector.IsSelected(pawn);
             __instance.StopDead();
@@ -159,8 +169,6 @@ namespace Lilly.InstantWorkSupply
 
             if (wasSelected)
                 Find.Selector.Select(pawn, false, false);
-
-            return false;
         }
     }
 }
