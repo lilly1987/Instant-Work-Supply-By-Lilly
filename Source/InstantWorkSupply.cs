@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -64,21 +66,54 @@ namespace Lilly.InstantWorkSupply
         }
     }
 
-    [HarmonyPatch(typeof(Toils_Goto), nameof(Toils_Goto.GotoThing), new[] { typeof(TargetIndex), typeof(PathEndMode) })]
+    [HarmonyPatch]
     internal static class Toils_Goto_GotoThing_Patch
     {
-        private static void Postfix(TargetIndex ind, ref Toil __result)
+        private static IEnumerable<MethodBase> TargetMethods()
         {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Goto))
+                .Where(method =>
+                {
+                    if (method.Name != nameof(Toils_Goto.GotoThing) || method.ReturnType != typeof(Toil))
+                        return false;
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    return parameters.Length >= 2 &&
+                        parameters[0].ParameterType == typeof(TargetIndex) &&
+                        parameters[1].ParameterType == typeof(PathEndMode);
+                });
+        }
+
+        private static void Postfix(object[] __args, ref Toil __result)
+        {
+            if (__args == null || __args.Length == 0 || !(__args[0] is TargetIndex targetIndex))
+                return;
+
             InstantWorkSupplyUtility.SkipTravel(
                 __result,
                 pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn) ||
-                    InstantWorkSupplyUtility.IsReservedPickup(pawn, ind));
+                    InstantWorkSupplyUtility.IsReservedPickup(pawn, targetIndex));
         }
     }
 
-    [HarmonyPatch(typeof(Toils_Goto), nameof(Toils_Goto.GotoCell), new[] { typeof(TargetIndex), typeof(PathEndMode) })]
+    [HarmonyPatch]
     internal static class Toils_Goto_GotoCellTarget_Patch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Goto))
+                .Where(method =>
+                {
+                    if (method.Name != nameof(Toils_Goto.GotoCell) || method.ReturnType != typeof(Toil))
+                        return false;
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    return parameters.Length >= 2 &&
+                        parameters[0].ParameterType == typeof(TargetIndex) &&
+                        parameters[1].ParameterType == typeof(PathEndMode);
+                });
+        }
+
         private static void Postfix(ref Toil __result)
         {
             InstantWorkSupplyUtility.SkipTravel(
@@ -87,9 +122,24 @@ namespace Lilly.InstantWorkSupply
         }
     }
 
-    [HarmonyPatch(typeof(Toils_Goto), nameof(Toils_Goto.GotoCell), new[] { typeof(IntVec3), typeof(PathEndMode) })]
+    [HarmonyPatch]
     internal static class Toils_Goto_GotoCell_Patch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Goto))
+                .Where(method =>
+                {
+                    if (method.Name != nameof(Toils_Goto.GotoCell) || method.ReturnType != typeof(Toil))
+                        return false;
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    return parameters.Length >= 2 &&
+                        parameters[0].ParameterType == typeof(IntVec3) &&
+                        parameters[1].ParameterType == typeof(PathEndMode);
+                });
+        }
+
         private static void Postfix(ref Toil __result)
         {
             InstantWorkSupplyUtility.SkipTravel(
@@ -98,9 +148,17 @@ namespace Lilly.InstantWorkSupply
         }
     }
 
-    [HarmonyPatch(typeof(Toils_Haul), nameof(Toils_Haul.CarryHauledThingToCell))]
+    [HarmonyPatch]
     internal static class Toils_Haul_CarryHauledThingToCell_Patch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Haul))
+                .Where(method =>
+                    method.Name == nameof(Toils_Haul.CarryHauledThingToCell) &&
+                    method.ReturnType == typeof(Toil));
+        }
+
         private static void Postfix(ref Toil __result)
         {
             InstantWorkSupplyUtility.SkipTravel(
@@ -109,9 +167,17 @@ namespace Lilly.InstantWorkSupply
         }
     }
 
-    [HarmonyPatch(typeof(Toils_Haul), nameof(Toils_Haul.CarryHauledThingToContainer))]
+    [HarmonyPatch]
     internal static class Toils_Haul_CarryHauledThingToContainer_Patch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Haul))
+                .Where(method =>
+                    method.Name == nameof(Toils_Haul.CarryHauledThingToContainer) &&
+                    method.ReturnType == typeof(Toil));
+        }
+
         private static void Postfix(ref Toil __result)
         {
             InstantWorkSupplyUtility.SkipTravel(
