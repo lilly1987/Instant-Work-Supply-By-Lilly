@@ -160,15 +160,9 @@ namespace Lilly.InstantWorkSupply
             if (destination.DistanceToSquared(pawn.Position) < MinimumTeleportDistanceSquared)
                 return;
 
-            bool wasSelected = Find.Selector.IsSelected(pawn);
             __instance.StopDead();
-            Rot4 rotation = pawn.Rotation;
-            pawn.DeSpawn();
-            GenSpawn.Spawn(pawn, destination, map, rotation);
+            pawn.Position = destination;
             pawn.Notify_Teleported();
-
-            if (wasSelected)
-                Find.Selector.Select(pawn, false, false);
         }
     }
 }
