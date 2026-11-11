@@ -137,7 +137,8 @@ namespace Lilly.InstantWorkSupply
 
                     ParameterInfo[] parameters = method.GetParameters();
                     return parameters.Length >= 2 &&
-                        parameters[0].ParameterType == typeof(IntVec3) &&
+                        (parameters[0].ParameterType == typeof(IntVec3) ||
+                         parameters[0].ParameterType == typeof(LocalTargetInfo)) &&
                         parameters[1].ParameterType == typeof(PathEndMode);
                 });
         }
@@ -160,9 +161,8 @@ namespace Lilly.InstantWorkSupply
             if (destination.DistanceToSquared(pawn.Position) < MinimumTeleportDistanceSquared)
                 return;
 
-            __instance.StopDead();
             pawn.Position = destination;
-            pawn.Notify_Teleported();
+            pawn.Notify_Teleported(true, true);
         }
     }
 }
