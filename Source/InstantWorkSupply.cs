@@ -20,42 +20,6 @@ namespace Lilly.InstantWorkSupply
 
     internal static class InstantWorkSupplyUtility
     {
-        internal static void SkipTravel(Toil toil, Func<Pawn, bool> shouldSkip)
-        {
-            if (toil == null || toil.initAction == null)
-                return;
-
-            Action originalInitAction = toil.initAction;
-            toil.initAction = delegate
-            {
-                Pawn pawn = toil.actor;
-                if (pawn != null && shouldSkip(pawn))
-                {
-                    originalInitAction();
-
-                    Map map = pawn.Map;
-                    PawnPath path = pawn.pather.curPath;
-                    IntVec3 destination = path != null ? path.LastNode : IntVec3.Invalid;
-                    if (map == null || !destination.IsValid || !destination.InBounds(map))
-                        return;
-
-                    pawn.pather.StopDead();
-
-                    if (destination != pawn.Position)
-                    {
-                        Rot4 rotation = pawn.Rotation;
-                        pawn.DeSpawn();
-                        GenSpawn.Spawn(pawn, destination, map, rotation);
-                    }
-
-                    pawn.jobs.curDriver.ReadyForNextToil();
-                    return;
-                }
-
-                originalInitAction();
-            };
-        }
-
         internal static bool IsReservedPickup(Pawn pawn, TargetIndex targetIndex)
         {
             if (pawn == null || pawn.Map == null || pawn.CurJob == null ||
@@ -71,15 +35,23 @@ namespace Lilly.InstantWorkSupply
                 pawn.Map.reservationManager.ReservedBy(target, pawn, pawn.CurJob);
         }
 
-        internal static bool ShouldSkipDestinationTravel(Pawn pawn)
+        internal static void SkipPickupTravel(Toil toil, TargetIndex targetIndex)
         {
-            if (pawn == null || pawn.carryTracker.CarriedThing == null || pawn.CurJob == null)
-                return false;
+            if (toil == null || toil.initAction == null)
+                return;
 
-            Job job = pawn.CurJob;
-            return !(job.targetA.HasThing && job.targetA.Thing is Pawn) &&
-                !(job.targetB.HasThing && job.targetB.Thing is Pawn) &&
-                !(job.targetC.HasThing && job.targetC.Thing is Pawn);
+            Action originalInitAction = toil.initAction;
+            toil.initAction = delegate
+            {
+                Pawn pawn = toil.actor;
+                if (IsReservedPickup(pawn, targetIndex))
+                {
+                    pawn.jobs.curDriver.ReadyForNextToil();
+                    return;
+                }
+
+                originalInitAction();
+            };
         }
     }
 
@@ -103,103 +75,44 @@ namespace Lilly.InstantWorkSupply
 
         private static void Postfix(object[] __args, ref Toil __result)
         {
-            if (__args == null || __args.Length == 0 || !(__args[0] is TargetIndex targetIndex))
-                return;
-
-            InstantWorkSupplyUtility.SkipTravel(
-                __result,
-                pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn) ||
-                    InstantWorkSupplyUtility.IsReservedPickup(pawn, targetIndex));
+            if (__args != null && __args.Length > 0 && __args[0] is TargetIndex targetIndex)
+                InstantWorkSupplyUtility.SkipPickupTravel(__result, targetIndex);
         }
     }
 
     [HarmonyPatch]
-    internal static class Toils_Goto_GotoCellTarget_Patch
+    internal static class Pawn_PathFollower_PatherTick_Patch
     {
-        private static IEnumerable<MethodBase> TargetMethods()
+        private static MethodBase TargetMethod()
         {
-            return AccessTools.GetDeclaredMethods(typeof(Toils_Goto))
-                .Where(method =>
-                {
-                    if (method.Name != nameof(Toils_Goto.GotoCell) || method.ReturnType != typeof(Toil))
-                        return false;
-
-                    ParameterInfo[] parameters = method.GetParameters();
-                    return parameters.Length >= 2 &&
-                        parameters[0].ParameterType == typeof(TargetIndex) &&
-                        parameters[1].ParameterType == typeof(PathEndMode);
-                });
+            return AccessTools.Method(typeof(Pawn_PathFollower), "PatherTick");
         }
 
-        private static void Postfix(ref Toil __result)
+        private static bool Prefix(Pawn_PathFollower __instance, Pawn ___pawn)
         {
-            InstantWorkSupplyUtility.SkipTravel(
-                __result,
-                pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn));
-        }
-    }
+            Pawn pawn = ___pawn;
+            if (pawn == null || !pawn.Spawned || pawn.Map == null)
+                return true;
 
-    [HarmonyPatch]
-    internal static class Toils_Goto_GotoCell_Patch
-    {
-        private static IEnumerable<MethodBase> TargetMethods()
-        {
-            return AccessTools.GetDeclaredMethods(typeof(Toils_Goto))
-                .Where(method =>
-                {
-                    if (method.Name != nameof(Toils_Goto.GotoCell) || method.ReturnType != typeof(Toil))
-                        return false;
+            PawnPath path = __instance.curPath;
+            if (path == null)
+                return true;
 
-                    ParameterInfo[] parameters = method.GetParameters();
-                    return parameters.Length >= 2 &&
-                        parameters[0].ParameterType == typeof(IntVec3) &&
-                        parameters[1].ParameterType == typeof(PathEndMode);
-                });
-        }
+            Map map = pawn.Map;
+            IntVec3 destination = path.LastNode;
+            if (!destination.IsValid || !destination.InBounds(map))
+                return true;
 
-        private static void Postfix(ref Toil __result)
-        {
-            InstantWorkSupplyUtility.SkipTravel(
-                __result,
-                pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn));
-        }
-    }
+            if (destination == pawn.Position)
+                return true;
 
-    [HarmonyPatch]
-    internal static class Toils_Haul_CarryHauledThingToCell_Patch
-    {
-        private static IEnumerable<MethodBase> TargetMethods()
-        {
-            return AccessTools.GetDeclaredMethods(typeof(Toils_Haul))
-                .Where(method =>
-                    method.Name == nameof(Toils_Haul.CarryHauledThingToCell) &&
-                    method.ReturnType == typeof(Toil));
-        }
+            __instance.StopDead();
+            Rot4 rotation = pawn.Rotation;
+            pawn.DeSpawn();
+            GenSpawn.Spawn(pawn, destination, map, rotation);
+            pawn.Notify_Teleported();
 
-        private static void Postfix(ref Toil __result)
-        {
-            InstantWorkSupplyUtility.SkipTravel(
-                __result,
-                pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn));
-        }
-    }
-
-    [HarmonyPatch]
-    internal static class Toils_Haul_CarryHauledThingToContainer_Patch
-    {
-        private static IEnumerable<MethodBase> TargetMethods()
-        {
-            return AccessTools.GetDeclaredMethods(typeof(Toils_Haul))
-                .Where(method =>
-                    method.Name == nameof(Toils_Haul.CarryHauledThingToContainer) &&
-                    method.ReturnType == typeof(Toil));
-        }
-
-        private static void Postfix(ref Toil __result)
-        {
-            InstantWorkSupplyUtility.SkipTravel(
-                __result,
-                pawn => InstantWorkSupplyUtility.ShouldSkipDestinationTravel(pawn));
+            return false;
         }
     }
 }

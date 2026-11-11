@@ -1,10 +1,8 @@
 # Instant Work Supply
 
-For RimWorld 1.7. Reuses vanilla work selection, ingredient selection, hauling, stack-count, and reservation logic. When a pawn's current job has selected and reserved a haulable item, the pawn teleports to the vanilla path destination for pickup; vanilla `StartCarryThing` puts the selected stack into the pawn's hands. While carrying an item, the pawn teleports to supported job destinations, where vanilla placement toils deposit it.
+For RimWorld 1.7. A pawn skips travel to a haulable item reserved by its current job, and vanilla carry toils put that item into its hands. Pawns teleport to the end of each subsequent vanilla path, so carried ingredients move instantly to work targets and vanilla job toils still place them. Other pawn movement also teleports.
 
-Because vanilla selects the source items, its eligibility rules remain in effect. Forbidden items and items reserved by another pawn are not taken. A job that cannot find enough eligible material continues to fail or retry as it normally would. This mod does not add a separate map-wide item search or bypass vanilla reachability checks.
-
-The mod affects standard goto-to-item and haul destination toils. A mod that implements its own pickup or delivery movement may require a separate compatibility patch.
+Items are selected, reserved, picked up, and placed by vanilla job logic. Forbidden items and items reserved by another pawn are not taken. Jobs retain vanilla candidate-selection and reachability rules; this mod does not add a separate map-wide item search. Movement that does not use `Pawn_PathFollower` is not affected. Teleporting all pawn movement can bypass normal travel time and movement-related interactions.
 
 Requires Harmony.
 
