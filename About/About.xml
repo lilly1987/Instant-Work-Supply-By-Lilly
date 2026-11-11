@@ -16,6 +16,6 @@
   <loadAfter>
     <li>brrainz.harmony</li>
   </loadAfter>
-  <description>Instantly picks up materials reserved by a pawn's current job and teleports pawns along vanilla paths, including while carrying materials to work targets.</description>
+  <description>Independently teleports reserved work materials to pawns at pickup, and teleports pawns along vanilla paths, including while carrying materials to work targets.</description>
   <modVersion>1.0.0</modVersion>
 </ModMetaData>

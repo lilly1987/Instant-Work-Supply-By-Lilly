@@ -53,6 +53,30 @@ namespace Lilly.InstantWorkSupply
                 originalInitAction();
             };
         }
+
+        internal static void TeleportReservedPickup(Toil toil, TargetIndex targetIndex)
+        {
+            if (toil == null || toil.initAction == null)
+                return;
+
+            Action originalInitAction = toil.initAction;
+            toil.initAction = delegate
+            {
+                Pawn pawn = toil.actor;
+                if (IsReservedPickup(pawn, targetIndex))
+                {
+                    Thing target = pawn.CurJob.GetTarget(targetIndex).Thing;
+                    if (target.Position != pawn.Position)
+                    {
+                        Map map = pawn.Map;
+                        target.DeSpawn();
+                        GenSpawn.Spawn(target, pawn.Position, map);
+                    }
+                }
+
+                originalInitAction();
+            };
+        }
     }
 
     [HarmonyPatch]
@@ -81,8 +105,28 @@ namespace Lilly.InstantWorkSupply
     }
 
     [HarmonyPatch]
+    internal static class Toils_Haul_StartCarryThing_Patch
+    {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            return AccessTools.GetDeclaredMethods(typeof(Toils_Haul))
+                .Where(method =>
+                    method.Name == nameof(Toils_Haul.StartCarryThing) &&
+                    method.ReturnType == typeof(Toil));
+        }
+
+        private static void Postfix(object[] __args, ref Toil __result)
+        {
+            if (__args != null && __args.Length > 0 && __args[0] is TargetIndex targetIndex)
+                InstantWorkSupplyUtility.TeleportReservedPickup(__result, targetIndex);
+        }
+    }
+
+    [HarmonyPatch]
     internal static class Pawn_PathFollower_PatherTick_Patch
     {
+        private const int MinimumTeleportDistanceSquared = 25;
+
         private static MethodBase TargetMethod()
         {
             return AccessTools.Method(typeof(Pawn_PathFollower), "PatherTick");
@@ -103,14 +147,18 @@ namespace Lilly.InstantWorkSupply
             if (!destination.IsValid || !destination.InBounds(map))
                 return true;
 
-            if (destination == pawn.Position)
+            if (destination.DistanceToSquared(pawn.Position) < MinimumTeleportDistanceSquared)
                 return true;
 
+            bool wasSelected = Find.Selector.IsSelected(pawn);
             __instance.StopDead();
             Rot4 rotation = pawn.Rotation;
             pawn.DeSpawn();
             GenSpawn.Spawn(pawn, destination, map, rotation);
             pawn.Notify_Teleported();
+
+            if (wasSelected)
+                Find.Selector.Select(pawn, false, false);
 
             return false;
         }
