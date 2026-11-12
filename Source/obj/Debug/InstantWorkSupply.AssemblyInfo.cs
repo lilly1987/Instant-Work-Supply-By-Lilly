@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InstantWorkSupply")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22cfdf64c04c4fa7e3f62776c41318f30314aff1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6859e5c6754a6644e37d947fa89497dc1f54034d")]
 [assembly: System.Reflection.AssemblyProductAttribute("InstantWorkSupply")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InstantWorkSupply")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

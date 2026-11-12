@@ -66,12 +66,8 @@ namespace Lilly.InstantWorkSupply
                 if (IsReservedPickup(pawn, targetIndex))
                 {
                     Thing target = pawn.CurJob.GetTarget(targetIndex).Thing;
-                    if (target.Position != pawn.Position)
-                    {
-                        Map map = pawn.Map;
-                        target.DeSpawn();
-                        GenSpawn.Spawn(target, pawn.Position, map);
-                    }
+                    if (target.Position != pawn.Position && !target.def.AffectsRegions)
+                        target.Position = pawn.Position;
                 }
 
                 originalInitAction();
