@@ -46,7 +46,7 @@ namespace Lilly.InstantWorkSupply
                 Pawn pawn = toil.actor;
                 if (IsReservedPickup(pawn, targetIndex))
                 {
-                    pawn.jobs.curDriver.ReadyForNextToil();
+                    toil.defaultCompleteMode = ToilCompleteMode.Instant;
                     return;
                 }
 
